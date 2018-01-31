@@ -40,7 +40,9 @@ class CreateLink extends Component {
        url
      }
    })
+   this.props.history.push('/')
   }
+
 }
 
 const POST_MUTATION = gql`

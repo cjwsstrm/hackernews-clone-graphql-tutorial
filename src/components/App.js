@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-// import LinkList from './LinkList'
 import { Switch, Route } from 'react-router-dom'
+import LinkList from './LinkList'
 import CreateLink from './CreateLink'
 import Header from './Header'
 
@@ -16,7 +16,7 @@ class App extends Component {
           </Switch>
         </div>
       </div>
-  }
+    )}
 }
 
 export default App
