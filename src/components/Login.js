@@ -55,38 +55,38 @@ class Login extends Component {
   }
 
   _confirm = async () => {
-   const { name, email, password } = this.state
-   if (this.state.login) {
-     const result = await this.props.loginMutation({
-       variables: {
-         email, password,
-       },
-     })
-     const { token } = result.data.login
-     this._saveUserData(token)
-   } else {
-     const result = await this.props.signupMutation({
-       variables: {
-         name,
-         email,
-         password,
-       },
-     })
-     const { token } = result.data.signup
-     this._saveUserData(token)
-   }
-   this.props.history.push('/')
+    const { name, email, password } = this.state
+    if (this.state.login) {
+      const result = await this.props.loginMutation({
+        variables: {
+          email,
+          password,
+        },
+      })
+      const { token } = result.data.login
+      this._saveUserData(token)
+    } else {
+      const result = await this.props.signupMutation({
+        variables: {
+          name,
+          email,
+          password,
+        },
+      })
+      const { token } = result.data.signup
+      this._saveUserData(token)
+    }
+    this.props.history.push(`/`)
   }
 
   _saveUserData = token => {
     localStorage.setItem(AUTH_TOKEN, token)
   }
-
 }
 
 const SIGNUP_MUTATION = gql`
   mutation SignupMutation($email: String!, $password: String!, $name: String!) {
-    signup(email: $email, password: $password) {
+    signup(email: $email, password: $password, name: $name) {
       token
     }
   }
