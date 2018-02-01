@@ -4,6 +4,10 @@ import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
 class LinkList extends Component {
+  componentDidMount() {
+    this._subscribeToNewLinks()
+  }
+  
   render() {
     if (this.props.feedQuery && this.props.feedQuery.loading) {
       return <div>Loading</div>
@@ -25,15 +29,49 @@ class LinkList extends Component {
   }
 
   _updateCacheAfterVote = (store, createVote, linkId) => {
-    // 1
     const data = store.readQuery({ query: FEED_QUERY })
   
-    // 2
     const votedLink = data.feed.links.find(link => link.id === linkId)
     votedLink.votes = createVote.link.votes
-  
-    // 3
+
     store.writeQuery({ query: FEED_QUERY, data })
+  }
+
+  _subscribeToNewLinks = () => {
+    this.props.feedQuery.subscribeToMore({
+      document: gql`
+        subscription {
+          newLink {
+            node {
+              id
+              url
+              description
+              createdAt
+              postedBy {
+                id
+                name
+              }
+              votes {
+                id
+                user {
+                  id
+                }
+              }
+            }
+          }
+        }
+      `,
+      updateQuery: (previous, { subscriptionData }) => {
+        const newAllLinks = [subscriptionData.data.newLink.node, ...previous.feed.links]
+        const result = {
+          ...previous,
+          feed: {
+            links: newAllLinks
+          },
+        }
+        return result
+      },
+    })
   }
 
 }
