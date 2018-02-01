@@ -6,8 +6,9 @@ import gql from 'graphql-tag'
 class LinkList extends Component {
   componentDidMount() {
     this._subscribeToNewLinks()
+    this._subscribeToNewVotes()
   }
-  
+
   render() {
     if (this.props.feedQuery && this.props.feedQuery.loading) {
       return <div>Loading</div>
@@ -68,6 +69,51 @@ class LinkList extends Component {
           feed: {
             links: newAllLinks
           },
+        }
+        return result
+      },
+    })
+  }
+
+  _subscribeToNewVotes = () => {
+    this.props.feedQuery.subscribeToMore({
+      document: gql`
+        subscription {
+          newVote {
+            node {
+              id
+              link {
+                id
+                url
+                description
+                createdAt
+                postedBy {
+                  id
+                  name
+                }
+                votes {
+                  id
+                  user {
+                    id
+                  }
+                }
+              }
+              user {
+                id
+              }
+            }
+          }
+        }
+      `,
+      updateQuery: (previous, { subscriptionData }) => {
+        console.log(`NEW VOTE`)
+        const votedLinkIndex = previous.feed.links.findIndex(
+          link => link.id === subscriptionData.data.newVote.node.link.id,
+        )
+        const newAllLinks = previous.feed.links.slice()
+        const result = {
+          ...previous,
+          allLinks: newAllLinks,
         }
         return result
       },
